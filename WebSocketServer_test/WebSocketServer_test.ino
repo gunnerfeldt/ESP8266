@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <Hash.h>
+#include <ArduinoJson.h>
 
 const char* ssid = "Ingrid Studio";
 const char* password = "stockholm";
@@ -47,23 +48,52 @@ void loop() {
     server.handleClient();
     if (Serial.available() > 0){
       char c[] = {(char)Serial.read()};
-      webSocket.broadcastTXT(c, sizeof(c));
+//      webSocket.broadcastTXT(c, sizeof(c));
     }
 }
 
+
+/*
+ * Incoming websocket transfer
+ * payload is char array of length
+ */
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length){
    if (type == WStype_TEXT){
-    if(payload[0] == 97){
-      digitalWrite(16, LOW);
-    }
-    if(payload[0] == 98){
-      digitalWrite(16, HIGH);
-    }
     for(int i = 0; i < length; i++) Serial.print((char) payload[i]);
     Serial.println();
-    
-      char* c = "Hallo";
-      webSocket.broadcastTXT(c, sizeof(c)+1);
-    
+    webSocketReport();
    }
 }
+
+void webSocketReport(){
+
+
+// char msg[] = "{\"ID\":1,\"type\":2}";
+ char msg[] = {100,101,102};
+Serial.print("msg: ");
+Serial.println(msg);
+Serial.print("Length: ");
+Serial.println(sizeof(msg));
+webSocket.broadcastTXT(msg, sizeof(msg));
+
+
+
+
+/*
+StaticJsonBuffer<300> JSONbuffer;
+JsonObject& JSONencoder = JSONbuffer.createObject();
+JSONencoder["device"] = "ESP32";
+JSONencoder["sensorType"] = "Temperature";
+JSONencoder["value"] = 23;
+char JSONmessageBuffer[100];
+JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+
+Serial.print("JSONmessageBuffer: ");
+Serial.println(JSONmessageBuffer);
+Serial.print("Length: ");
+Serial.println(sizeof(JSONmessageBuffer));
+
+webSocket.broadcastTXT(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+*/
+}
+

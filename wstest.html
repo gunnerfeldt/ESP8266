@@ -31,6 +31,9 @@ function start() {
   
   Socket.onmessage = function(evt) {
 	document.getElementById("rxConsole").value += evt.data;
+    console.log(evt.data);
+ //   var msg = JSON.parse(evt.data);
+  //  console.log(msg);
   }
   
 }
